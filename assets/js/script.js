@@ -561,10 +561,27 @@ function rgb(hex) {
 }
 
 function doInfo() {
-  st.name = document.getElementById("fn").value;
-  st.brand = document.getElementById("fb").value;
-  st.email = document.getElementById("fe").value;
-  if (st.name.trim()) set({ phase: "quiz", qi: 0, ans: [], sel: null });
+  st.name = document.getElementById("fn").value.trim();
+  st.brand = document.getElementById("fb").value.trim();
+  st.email = document.getElementById("fe").value.trim();
+
+  const erros = [];
+  if (!st.name) erros.push("fn");
+  if (!st.brand) erros.push("fb");
+  if (!st.email || !st.email.includes("@")) erros.push("fe");
+
+  document.querySelectorAll(".field").forEach(el => {
+    el.style.borderColor = "rgba(255,255,255,0.07)";
+  });
+
+  if (erros.length > 0) {
+    erros.forEach(id => {
+      document.getElementById(id).style.borderColor = "#E24B4A";
+    });
+    return;
+  }
+
+  set({ phase: "quiz", qi: 0, ans: [], sel: null });
 }
 
 function setSel(i) {
