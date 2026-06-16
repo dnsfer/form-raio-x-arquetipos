@@ -522,12 +522,14 @@ async function submitNetlify(t3, pcts) {
       email_cliente: st.email,
       arquetipos: `Principal: ${t3[0].name} (${pcts[0]}%) | Apoio 1: ${t3[1].name} (${pcts[1]}%) | Apoio 2: ${t3[2].name} (${pcts[2]}%)`,
     });
-    await fetch("/", {
+
+    const res = await fetch("/", {  // ✅ "const res =" adicionado
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: body.toString(),
     });
-    console.log("Netlify status:", res.status, await res.text());
+
+    console.log("Netlify status:", res.status);
     return res.ok;
   } catch (e) {
     console.error("Erro no submit:", e);
