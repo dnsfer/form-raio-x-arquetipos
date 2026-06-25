@@ -513,6 +513,12 @@ function getTop3(a) {
     });
 }
 
+function montarRespostasDetalhadas(a) {
+  return a.map((oi, qi) => ({
+    pergunta: QS[qi].q,
+    resposta: QS[qi].opts[oi].t,
+  }));
+}
 async function submitNetlify(t3, pcts) {
   try {
     const body = new URLSearchParams({
@@ -523,7 +529,7 @@ async function submitNetlify(t3, pcts) {
       arquetipos: `Principal: ${t3[0].name} (${pcts[0]}%) | Apoio 1: ${t3[1].name} (${pcts[1]}%) | Apoio 2: ${t3[2].name} (${pcts[2]}%)`,
     });
 
-    const res = await fetch("/", {  // ✅ "const res =" adicionado
+    const res = await fetch("/", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: body.toString(),
@@ -535,6 +541,34 @@ async function submitNetlify(t3, pcts) {
     console.error("Erro no submit:", e);
     return false;
   }
+}
+
+try {
+  const respostas = montarRespostasDetalhadas(st.ans);
+  const top3Payload = t3.map((arq, i) => ({
+    name: arq.name,
+    tag: arq.tag,
+    pct: pct[i],
+  }));
+
+  const resFn = await fetch("/.netlify/functions/enviar-relatorio", {
+    method: "POST",
+    headers: {
+      "content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      nome: st.name,
+      marca: st.brand,
+      email: st.email,
+      respostas,
+      top3: top3Payload,
+    }),
+  });
+
+  console.log("Envio do relatório PDF status:", resFn.status);
+  return resFn.ok;
+} catch (e) {
+  console.error("Erro ao enviar relatório PDF:", e);
 }
 
 function next() {
@@ -572,12 +606,12 @@ function doInfo() {
   if (!st.brand) erros.push("fb");
   if (!st.email || !st.email.includes("@")) erros.push("fe");
 
-  document.querySelectorAll(".field").forEach(el => {
+  document.querySelectorAll(".field").forEach((el) => {
     el.style.borderColor = "rgba(255,255,255,0.07)";
   });
 
   if (erros.length > 0) {
-    erros.forEach(id => {
+    erros.forEach((id) => {
       document.getElementById(id).style.borderColor = "#E24B4A";
     });
     return;
@@ -648,9 +682,9 @@ function render() {
 <div style="animation:up .38s ease">
   <p class="tiny" style="margin-bottom:16px">identificação</p>
   <h2 class="os" style="font-size:clamp(1.8rem,8vw,3rem);line-height:1.05;color:var(--y);margin-bottom:26px">QUEM<br>É VOCÊ?</h2>
-  <div class="field-wrap"><label class="field-lbl">SEU NOME *</label><input class="field" id="fn" placeholder="Como posso te chamar?" value="${name}"></div>
-  <div class="field-wrap"><label class="field-lbl">MARCA OU NEGÓCIO</label><input class="field" id="fb" placeholder="Nome da marca (opcional)" value="${brand}"></div>
-  <div class="field-wrap"><label class="field-lbl">EMAIL</label><input class="field" id="fe" type="email" placeholder="para contato futuro (opcional)" value="${email}"></div>
+  <div class="field-wrap"><label class="field-lbl">SEU NOME </label><input class="field" id="fn" placeholder="Como posso te chamar?" value="${name}"></div>
+  <div class="field-wrap"><label class="field-lbl">MARCA OU NEGÓCIO</label><input class="field" id="fb" placeholder="Nome da marca" value="${brand}"></div>
+  <div class="field-wrap"><label class="field-lbl">EMAIL</label><input class="field" id="fe" type="email" placeholder="para contato futuro" value="${email}"></div>
   <button class="btn fw" id="cont" ${
     !name.trim() ? "disabled" : ""
   } onclick="doInfo()" style="margin-top:8px">CONTINUAR →</button>
