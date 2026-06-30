@@ -536,39 +536,37 @@ async function submitNetlify(t3, pcts) {
     });
 
     console.log("Netlify status:", res.status);
-    return res.ok;
   } catch (e) {
-    console.error("Erro no submit:", e);
-    return false;
+    console.error("Erro no submit:", e); 
   }
-}
 
-try {
-  const respostas = montarRespostasDetalhadas(st.ans);
-  const top3Payload = t3.map((arq, i) => ({
-    name: arq.name,
-    tag: arq.tag,
-    pct: pct[i],
-  }));
+  try {
+    const respostas = montarRespostasDetalhadas(st.ans);
+    const top3Payload = t3.map((arq, i) => ({
+      name: arq.name,
+      tag: arq.tag,
+      pct: pcts[i],
+    }));
 
-  const resFn = await fetch("/.netlify/functions/enviar-relatorio", {
-    method: "POST",
-    headers: {
-      "content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      nome: st.name,
-      marca: st.brand,
-      email: st.email,
-      respostas,
-      top3: top3Payload,
-    }),
-  });
+    const resFn = await fetch("/.netlify/functions/enviar-relatorios", {
+      method: "POST",
+      headers: {
+        "content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nome: st.name,
+        marca: st.brand,
+        email: st.email,
+        respostas,
+        top3: top3Payload,
+      }),
+    });
 
-  console.log("Envio do relatório PDF status:", resFn.status);
-  return resFn.ok;
-} catch (e) {
-  console.error("Erro ao enviar relatório PDF:", e);
+    console.log("Envio do relatório PDF status:", resFn.status);
+    return resFn.ok;
+  } catch (e) {
+    console.error("Erro ao enviar relatório PDF:", e);
+  }
 }
 
 function next() {
