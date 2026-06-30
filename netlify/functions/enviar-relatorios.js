@@ -4,7 +4,7 @@ const { Resend } = require("resend");
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const EMAIL_DESTINO = "dnunesferreira.fr@gmail.com";
+const EMAIL_DESTINO = "biancarodrigues.socialmedia@gmail.com";
 
 const EMAIL_REMETENTE = "Raio-X da Marca <onboarding@resend.dev>";
 
